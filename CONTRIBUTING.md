@@ -1,0 +1,1 @@
+Contributions to this project are welcome! Please create a fork of this repository, make your changes, and submit a pull request. For major changes, please open an issue first to discuss what you would like to change.
