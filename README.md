@@ -12,7 +12,7 @@ To use this library in your project, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-oscillatorsetups = { git = "https://github.com/moderncodes/oscillatorsetups", tag = "v0.0.1" }
+oscillatorsetups = "0.0.1"
 ```
 
 ## Usage
