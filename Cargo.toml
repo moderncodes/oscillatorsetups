@@ -2,6 +2,9 @@
 name = "oscillatorsetups"
 version = "0.0.1"
 edition = "2021"
+description = "Cryptocurrency Technical Analysis Library"
+license = "Apache-2.0"
+documentation = "https://github.com/moderncodes/oscillatorsetups/blob/main/README.md"
 
 authors = ["Denis L <info@moderncodes.com>"]
 repository = "https://github.com/moderncodes/oscillatorsetups"
