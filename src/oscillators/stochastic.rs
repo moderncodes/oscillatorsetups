@@ -28,16 +28,16 @@ use crate::oscillators::{
 ///
 /// assert_eq!(k_for_tick(&price_data, 2, 3), Some(83.33333333333331));
 /// ```
-pub fn k_for_tick(price_data: &[Hlc], index: usize, k_length: usize) -> Option<f64> {
-    if index < k_length - 1 {
+pub fn k_for_tick(price_data: &[Hlc], index: usize, k_length: u16) -> Option<f64> {
+    if index < k_length as usize - 1 {
         None
     } else {
-        let low_prices: Vec<f64> = price_data[index + 1 - k_length..=index]
+        let low_prices: Vec<f64> = price_data[index + 1 - k_length as usize..=index]
             .iter()
             .map(|hlc| hlc.price_low)
             .collect();
 
-        let high_prices: Vec<f64> = price_data[index + 1 - k_length..=index]
+        let high_prices: Vec<f64> = price_data[index + 1 - k_length as usize..=index]
             .iter()
             .map(|hlc| hlc.price_high)
             .collect();
@@ -84,7 +84,7 @@ pub fn k_for_tick(price_data: &[Hlc], index: usize, k_length: usize) -> Option<f
 ///
 /// assert_eq!(k_for_ticks(&price_data, 3), vec![None, None, Some(83.33333333333331)]);
 /// ```
-pub fn k_for_ticks(price_data: &[Hlc], k_length: usize) -> Vec<Option<f64>> {
+pub fn k_for_ticks(price_data: &[Hlc], k_length: u16) -> Vec<Option<f64>> {
     let result = price_data
         .iter()
         .enumerate()
@@ -112,8 +112,8 @@ pub fn k_for_ticks(price_data: &[Hlc], k_length: usize) -> Vec<Option<f64>> {
 ///
 /// assert_eq!(d_for_tick(&k_values, 3, 3), Some(30.0));
 /// ```
-pub fn d_for_tick(k_values: &[Option<f64>], index: usize, d_length: usize) -> Option<f64> {
-    if index < d_length - 1 {
+pub fn d_for_tick(k_values: &[Option<f64>], index: usize, d_length: u16) -> Option<f64> {
+    if index < d_length as usize - 1 {
         None
     } else {
         sma_for_tick(k_values, index, d_length)
@@ -139,7 +139,7 @@ pub fn d_for_tick(k_values: &[Option<f64>], index: usize, d_length: usize) -> Op
 ///
 /// assert_eq!(d_values, vec![None, None, Some(20.0), Some(30.0), Some(40.0), Some(50.0)]);
 /// ```
-pub fn d_for_ticks(k_values: &[Option<f64>], d_length: usize) -> Vec<Option<f64>> {
+pub fn d_for_ticks(k_values: &[Option<f64>], d_length: u16) -> Vec<Option<f64>> {
     let result = k_values
         .iter()
         .enumerate()
@@ -175,58 +175,61 @@ pub struct StochValues {
 /// * `d_smoothing` - The period length over which to smooth the %D values.
 ///
 /// # Returns
-/// A vector of `StochValues`, each representing the Stochastic Oscillator values at a corresponding tick.
+/// A vector of [StochValues], each representing the Stochastic Oscillator values at a corresponding tick.
 ///
 /// # Examples
 /// ```
-/// use oscillatorsetups::oscillators::{models::Hlc, stochastic::{stochastic, StochValues}};
+/// use crate::oscillatorsetups::oscillators::{models::Hlc, stochastic::{stochastic, StochValues}};
 ///
 /// let price_data = vec![
-///     Hlc { price_high: 1768.34, price_low: 1763.93, price_close: 1768.34 },
-///     Hlc { price_high: 1769.47, price_low: 1767.37, price_close: 1769.0 },
-///     Hlc { price_high: 1768.99, price_low: 1767.99, price_close: 1767.99 },
-///     Hlc { price_high: 1769.46, price_low: 1767.99, price_close: 1768.11 },
-///     Hlc { price_high: 1768.49, price_low: 1764.74, price_close: 1766.35 },
-///     Hlc { price_high: 1766.99, price_low: 1764.22, price_close: 1765.24 },
-///     Hlc { price_high: 1766.49, price_low: 1764.3, price_close: 1765.4 },
-///     Hlc { price_high: 1765.43, price_low: 1763.26, price_close: 1764.61 },
-///     Hlc { price_high: 1767.02, price_low: 1764.85, price_close: 1765.11 },
-///     Hlc { price_high: 1767.02, price_low: 1764.05, price_close: 1766.96 },
-///     Hlc { price_high: 1766.97, price_low: 1763.61, price_close: 1764.5 },
-///     Hlc { price_high: 1765.28, price_low: 1762.07, price_close: 1763.58 },
-///     Hlc { price_high: 1763.44, price_low: 1761.71, price_close: 1761.9 },
-///     Hlc { price_high: 1763.49, price_low: 1760.01, price_close: 1763.49 },
-///     Hlc { price_high: 1765.0, price_low: 1761.0, price_close: 1765.0 },
-///     Hlc { price_high: 1763.96, price_low: 1760.4, price_close: 1763.91 },
+///     Hlc::new(1768.34, 1763.93, 1768.34),
+///     Hlc::new(1769.47, 1767.37, 1769.00),
+///     Hlc::new(1768.99, 1767.99, 1767.99),
+///     Hlc::new(1769.46, 1767.99, 1768.11),
+///     Hlc::new(1768.49, 1764.74, 1766.35),
+///     Hlc::new(1766.99, 1764.22, 1765.24),
+///     Hlc::new(1766.49, 1764.30, 1765.40),
+///     Hlc::new(1765.43, 1763.26, 1764.61),
+///     Hlc::new(1767.02, 1764.85, 1765.11),
+///     Hlc::new(1767.02, 1764.05, 1766.90),
+///     Hlc::new(1766.97, 1763.61, 1764.50),
+///     Hlc::new(1765.28, 1762.07, 1763.58),
+///     Hlc::new(1763.44, 1761.71, 1761.90),
+///     Hlc::new(1763.49, 1760.01, 1763.49),
+///     Hlc::new(1765.00, 1761.00, 1765.00),
+///     Hlc::new(1763.96, 1760.40, 1763.91),
 /// ];
 /// let k_length = 14;
 /// let k_smoothing = 1;
 /// let d_smoothing = 3;
 ///
 /// let stoch_values = stochastic(&price_data, k_length, k_smoothing, d_smoothing);
+/// let expected_stoch_values = vec![
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
+///     StochValues { k_line: None, d_line: None },
 ///
-/// assert_eq!(stoch_values[0], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[1], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[2], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[3], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[4], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[5], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[6], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[7], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[8], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[9], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[10], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[11], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[12], StochValues { k_line: None, d_line: None });
-/// assert_eq!(stoch_values[13], StochValues { k_line: Some(36.78646934460893), d_line: None });
-/// assert_eq!(stoch_values[14], StochValues { k_line: Some(52.74841437632124), d_line: None });
-/// assert_eq!(stoch_values[15], StochValues { k_line: Some(41.26984126984203), d_line: Some(43.601574996924064) });
+///     StochValues { k_line: Some(36.78646934460893), d_line: None },
+///     StochValues { k_line: Some(52.74841437632124), d_line: None },
+///
+///     StochValues { k_line: Some(41.26984126984203), d_line:Some(43.601574996924064) },
+/// ];
 /// ```
 pub fn stochastic(
     price_data: &[Hlc],
-    k_length: usize,
-    k_smoothing: usize,
-    d_smoothing: usize,
+    k_length: u16,
+    k_smoothing: u16,
+    d_smoothing: u16,
 ) -> Vec<StochValues> {
     let k_line_raw = k_for_ticks(price_data, k_length);
     let k_line = sma_for_ticks(&k_line_raw, k_smoothing);

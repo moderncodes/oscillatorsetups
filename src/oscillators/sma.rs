@@ -11,18 +11,18 @@
 ///
 /// # Examples
 /// ```
-/// use oscillatorsetups::oscillators::sma::sma_for_tick;
+/// use crate::oscillatorsetups::oscillators::sma::sma_for_tick;
 /// let data = vec![Some(10.0), Some(20.0), Some(30.0), Some(40.0), Some(50.0), Some(60.0), Some(70.0)];
 ///
 /// assert_eq!(sma_for_tick(&data, 3, 3), Some(30.0));
 /// assert_eq!(sma_for_tick(&data, 2, 3), Some(20.0));
 /// assert_eq!(sma_for_tick(&data, 1, 3), None);
 /// ```
-pub fn sma_for_tick(data: &[Option<f64>], index: usize, period: usize) -> Option<f64> {
-    if index < period - 1 {
+pub fn sma_for_tick(data: &[Option<f64>], index: usize, period: u16) -> Option<f64> {
+    if index < period as usize - 1 {
         None
     } else {
-        let slice = &data[index + 1 - period..=index];
+        let slice = &data[index + 1 - period as usize..=index];
         if slice.iter().any(|&x| x.is_none()) {
             None
         } else {
@@ -47,7 +47,7 @@ pub fn sma_for_tick(data: &[Option<f64>], index: usize, period: usize) -> Option
 ///
 /// # Examples
 /// ```
-/// use oscillatorsetups::oscillators::sma::sma_for_ticks;
+/// use crate::oscillatorsetups::oscillators::sma::sma_for_ticks;
 ///
 /// let data = vec![Some(1.0), Some(2.0), Some(3.0), Some(4.0), Some(5.0), Some(6.0)];
 /// let period = 3;
@@ -55,13 +55,13 @@ pub fn sma_for_tick(data: &[Option<f64>], index: usize, period: usize) -> Option
 ///
 /// assert_eq!(sma, vec![None, None, Some(2.0), Some(3.0), Some(4.0), Some(5.0)]);
 /// ```
-pub fn sma_for_ticks(data: &[Option<f64>], period: usize) -> Vec<Option<f64>> {
+pub fn sma_for_ticks(data: &[Option<f64>], period: u16) -> Vec<Option<f64>> {
     let data_len: usize = data.len();
     let mut res = vec![None; data_len];
 
     for ix in 0..data_len {
-        if ix >= period - 1 {
-            let slice = &data[ix + 1 - period..=ix];
+        if ix >= period as usize - 1 {
+            let slice = &data[ix + 1 - period as usize..=ix];
             // Skip if slice contains None
             if slice.iter().any(|&x| x.is_none()) {
                 continue;

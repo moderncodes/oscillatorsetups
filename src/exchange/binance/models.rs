@@ -1,30 +1,6 @@
-use serde::{
-    de::{self, Deserializer, Visitor},
-    Deserialize, Serialize,
-};
-
-//https://docs.rs/serde/latest/serde/de/trait.Visitor.html
-struct F64Visitor;
-impl<'de> Visitor<'de> for F64Visitor {
-    type Value = f64;
-
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        formatter.write_str("a string representation of f64")
-    }
-
-    fn visit_str<E>(self, value: &str) -> Result<f64, E>
-    where
-        E: de::Error,
-    {
-        value.parse::<f64>().map_err(E::custom)
-    }
-}
-fn string_to_f64<'de, D>(deserializer: D) -> Result<f64, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    deserializer.deserialize_string(F64Visitor)
-}
+use serde::{Deserialize, Serialize,};
+use std::collections::HashMap;
+use crate::utils::string_to_f64;
 
 /// Represents kline/candlestick data for a trading pair on Binance.
 ///
@@ -32,7 +8,7 @@ where
 /// Klines are often used in financial analysis and trading strategies.
 /// [Kline/Candlestick Data](https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data)
 ///
-/// # Fields
+/// ## Fields
 /// - `open_time`:  The time that the kline/candlestick opened, represented as a Unix timestamp.
 /// - `open_price`: The price at the opening of the kline/candlestick.
 /// - `high_price`: The highest price reached during the period of the kline/candlestick.
@@ -51,8 +27,8 @@ where
 /// Deserialization example:
 ///
 /// ```rust
+/// use crate::oscillatorsetups::exchange::binance::models::Klines;
 /// use serde_json::from_str;
-/// use oscillatorsetups::binance_api::models::Klines;
 ///
 /// let data = r#"
 /// [
@@ -98,4 +74,34 @@ pub struct Klines {
     pub taker_buy_quote_asset_volume: f64,
     #[serde(rename = "11")]
     pub unused_field: String,
+}
+
+/// Represents the parameters needed to make a request to the Binance API
+///
+/// This struct includes the following fields:
+/// * `base_url`    : Exchange host name
+/// * `endpoint`    : The specific API path requesting data from, e.g. "/api/v3/klines".
+/// * `params`      : A HashMap containing additional request query parameters like "symbol", "interval", and "limit".
+///
+/// # Examples
+///
+/// ```rust
+/// use crate::oscillatorsetups::exchange::binance::models::ApiParams;
+/// use std::collections::HashMap;
+///
+/// let api_params = ApiParams {
+///     base_url    : "https://api.binance.us", // use Binance US API
+///     endpoint    : "/api/v3/klines",
+///     params      : &HashMap::from([
+///         ("interval", "15m"),
+///         ("limit", "10"),
+///         ("symbol", "ETHUSD")
+///     ]),
+/// };
+/// ```
+#[derive(Debug, Clone, Copy)]
+pub struct ApiParams<'a> {
+    pub base_url: &'a str,
+    pub endpoint: &'a str,
+    pub params: &'a HashMap<&'a str, &'a str>,
 }
