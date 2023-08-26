@@ -5,7 +5,7 @@
 //!
 //! This module is comprised of the following submodules:
 //!
-//! - [`binance`]: Offers comprehensive functionality to interact with the Binance trading platform's API.
+//! - [`binance`]: Offers functionality to interact with the Binance trading platform's API.
 //!   It provides structures, utilities, and examples to help developers work with the Binance API efficiently.
 //!   Notable features include fetching kline/candlestick data, exchange specifics, and direct API calls.
 //!

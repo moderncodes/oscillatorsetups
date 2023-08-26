@@ -307,10 +307,6 @@ impl<'a> Stochastic<'a> {
     /// 1. The method generates possible configurations based on [`pnl_range`].
     /// 2. For each configuration, the corresponding Profit and Loss (PnL) is computed.
     /// 3. The top 100 configurations by net profit are retained in a sorted [`BTreeSet`].
-    /// 4. Results (top configurations and their net profits) are printed to standard output.
-    ///
-    /// # Side Effects
-    /// - The method directly prints the top configurations along with their net profits to the standard output.
     ///
     /// # Examples
     ///
@@ -334,7 +330,10 @@ impl<'a> Stochastic<'a> {
     ///     d_length    : 3..=5,
     /// };
     ///
-    /// stochastic.top_net_profit(range);
+    /// let top_profits =stochastic.top_net_profit(range);
+    /// for (profit, params) in &*top_profits.lock().unwrap() {
+    ///     println!("Net profit: {}, Parameters: {:?}", profit.0, params);
+    /// }
     /// // Expected output:
     /// // Net profit: XXX, Parameters: PnlParams { k_length: XX, k_smoothing: XX, d_length: XX }
     /// // ... (and so on for top configurations)
@@ -345,7 +344,7 @@ impl<'a> Stochastic<'a> {
     /// - Proper synchronization using `Arc` and `Mutex` ensures thread safety during concurrent modifications of the results.
     /// - This method can be computationally intensive, especially for larger ranges. Ensure optimal resource management when using it.
     #[allow(dead_code)]
-    pub fn top_net_profit(&self, pnl_range:PnlRange){
+    pub fn top_net_profit(&self, pnl_range:PnlRange) -> Arc<Mutex<BTreeSet<(Profit, PnlParams)>>> {
         let top_profits = Arc::new(Mutex::new(BTreeSet::new()));
 
         // Generate possible parameter configurations.
@@ -372,10 +371,11 @@ impl<'a> Stochastic<'a> {
             }
         });
 
-        // Print the top 100 PnL configurations.
+        top_profits
+        /*// Print the top 100 PnL configurations.
         for (profit, params) in &*top_profits.lock().unwrap() {
             println!("Net profit: {}, Parameters: {:?}", profit.0, params);
-        }
+        }*/
     }
 }
 

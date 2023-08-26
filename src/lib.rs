@@ -1,15 +1,17 @@
-//! # Cryptocurrency Technical Analysis Library
+//! # Financial Technical Analysis Library
 //!
-//! `oscillatorsetups` is a cryptocurrency technical analysis library focused on determining the most
+//! `oscillatorsetups` is a financial technical analysis library, focused on determining the most
 //! profitable configurations for various technical oscillators, including but not limited to the Stochastic Oscillator, MACD,
 //! RSI, and others in development.
 //!
 //! ## Modules:
-//! * `exchange`: Provides optional functionalities to interact with cryptocurrency exchange platforms.
 //! * `oscillators`: Dedicated to various financial technical analysis oscillators.
 //! * `pnl_simulator`: Simulates and analyzes profit and loss across a range of oscillator strategies.
 //! * `utils`: Utility functions for operations across the library.
+//! * `exchange`: Provides optional functionalities to interact with cryptocurrency exchange platforms.
 //!
+//! Cryptocurrency `OHLCV` candlestick data was chosen due to its accessibility and cost-free API options, facilitating efficient testing and development.
+//! However, any other stock index or crypto pair candlestick data can also be used for analysis.
 //! While the library has the capability to fetch trading data from exchanges, this feature serves primarily
 //! as a supplementary tool to obtain necessary data for oscillator analysis, rather than a primary functionality.
 //!
@@ -23,17 +25,17 @@
 //!
 //! # fn main() {
 //! let stochastic = match Stochastic::new(
-//!     "binance",  // or "coinbase"
+//!     "coinbase",  // or "coinbase"
 //!     KlineParams {
 //!         base_asset  : "ETH",
-//!         quote_asset : "USDT",
-//!         interval    : Intervals::H4, // Refer to exchange api for correct intervals set values
+//!         quote_asset : "USD",
+//!         interval    : Intervals::M15, // Refer to exchange api for correct intervals set values
 //!         limit       : 1000,
 //!         base_url    : None, // Defaults: binance is https://api.binance.us or coinbase is "https://api.exchange.coinbase.com"
 //!         source      : Some("api"),
 //!     }) {
 //!     Ok(s) => s
-//!         .exchange_fee(0.00075)  // Default None
+//!         //.exchange_fee(0.00075)  // Default None
 //!         .min_qty(0.0001)        // Default None
 //!         .min_price(0.01),       // Default None
 //!     Err(e) => {
@@ -42,11 +44,14 @@
 //!     }
 //! };
 //!
-//! stochastic.top_net_profit(PnlRange {
+//! let top_profits = stochastic.top_net_profit(PnlRange {
 //!     k_length: 5..=42,
 //!     k_smoothing: 3..=42,
 //!     d_length: 3..=42,
 //! });
+//! for (profit, params) in &*top_profits.lock().unwrap() {
+//!     println!("Net profit: {}, Parameters: {:?}", profit.0, params);
+//! }
 //!
 //! /* Result
 //! Net profit: 416.82, PnlParams { k_length:  7, k_smoothing: 41, d_length: 24 }
@@ -87,7 +92,22 @@
 //!
 //! # }
 //! ```
-//! Please refer to each module's specific documentation for more comprehensive examples and descriptions.
+//! ## Common Issues and Solutions
+//! **Issue**:
+//! Failed to create Stochastic: error decoding response body: invalid type: map, expected a sequence at line 1 column 0
+//! Fix Suggestion: Check if the exchange supports the specified interval in:
+//! **Fix Suggestion**:
+//! Ensure that the exchange you are querying supports the specified interval. Check and modify the interval in the following configuration:
+//! ```ignore
+//! KlineParams {
+//!     base_asset  : "ETH",
+//!     quote_asset : "USDT",
+//!     interval    : Intervals::M15, // Refer to the exchange API for the correct set of interval values.
+//!     limit       : 1000,
+//!     base_url    : None, // Defaults: Binance is "https://api.binance.us" and Coinbase is "https://api.exchange.coinbase.com"
+//!     source      : Some("api"),
+//! }
+//! ```
 //!
 //! ## Disclaimer:
 //! This library is intended to be a tool for technical analysis based on historical data. It does not offer any guarantee

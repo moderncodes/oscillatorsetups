@@ -1,15 +1,20 @@
 # oscillatorsetups
-## Cryptocurrency Technical Analysis Library
+## Financial Technical Analysis Library
 
-`oscillatorsetups` is a Rust-based technical analysis library for cryptocurrencies. 
-It's tailored to help determine the most profitable configurations for various technical oscillators. 
-While the library currently emphasizes the Stochastic Oscillator, future versions will incorporate others such as MACD, RSI, and more.
+`oscillatorsetups` is a Rust-based financial technical analysis library designed to determine the most profitable configurations for various technical oscillators.\
+It offers capabilities for a wide range of financial data, making it suitable for stocks, commodities, forex, and cryptocurrencies.
 
-## Features:
+## Main Modules::
 * **Oscillators**: Perform technical analysis computations on trading data.
-* **Data Fetching**: Although not its primary focus, the library can fetch trading data from cryptocurrency exchanges as a supplementary tool to assist in oscillator analysis.
 * **Profit and Loss Simulation**: Analyze potential profits and losses across various oscillator configurations.
+* **Data Fetching**: Although not its primary focus, the library can fetch trading data from cryptocurrency exchanges as a supplementary tool to assist in oscillator analysis.
 
+The choice of cryptocurrency `OHLCV` candlestick data was chosen due to its accessibility and cost-free API options, facilitating efficient testing and development.\
+However, any other stock index, commodities, forex data can also be used for analysis.
+
+## Current Analysis Capabilities:
+* **Stochastic Analysis**: The library currently supports stochastic oscillator analysis for financial data.
+* **In Development**: Analysis for other technical indicators such as MACD, RSI, and more are currently under development and will be introduced in upcoming versions.
 
 ## Installation
 
@@ -103,10 +108,24 @@ Fee = $1000 (asset value) x 0.005 (fee percentage in decimal form) = $5.00
 Standard Fee = $1000 (asset value) x 0.001 (standard fee percentage in decimal form)\
 Standard Fee = $1\
 BNB Discount Fee at 25% = $0.75\
-**NOTE**: as of this post, Binance offers 0% on Tier 0 pairs [Fees - Binance US](https://www.binance.us/fees) Bitcoin and Ethereum trading in the U.S
+**NOTE**: as of this post, Binance offers 0% on Tier 0 pairs [Fees - Binance US](https://www.binance.us/fees) Bitcoin and ~~Ethereum~~ trading in the U.S
 
 ## Testing
 To run the tests for the library, use the command `cargo test`.
+
+## Common Issues and Solutions
+1. _Failed to create Stochastic: error decoding response body: invalid type: map, expected a sequence at line 1 column 0_\
+    Ensure that the exchange you are querying supports the specified interval. Check and modify the interval in the following configuration
+```rust
+KlineParams {
+    base_asset  : "ETH",
+    quote_asset : "USDT",
+    interval    : Intervals::M15, // Refer to the exchange API for the correct set of interval values.
+    limit       : 1000,
+    base_url    : None, // Defaults: Binance is "https://api.binance.us" and Coinbase is "https://api.exchange.coinbase.com"
+    source      : Some("api"),
+}
+```
 
 ## Contributing
 Your contributions are welcome and appreciated!
